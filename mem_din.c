@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+/* Tons de cinza */
+
 typedef unsigned char Byte;
 typedef struct { Byte B, G, R; } Pixel;
 
