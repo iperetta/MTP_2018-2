@@ -1,10 +1,13 @@
 #ifndef MATRIX_H
 #define MATRIX_H
 
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-const double mNAN = 0.0/0.0;
+#define CHECK(x,y,z)                   \
+    if(!(x)) { fprintf(stderr, y); }   \
+    else z
 
 typedef
     struct {
@@ -131,7 +134,7 @@ int M_submatrix(Matrix * A, int row, int column, Matrix ** S) {
 double M_det(Matrix * A);
 
 double M_minor(Matrix * A, int i, int j) {
-    double minor = mNAN;
+    double minor = NAN;
     Matrix * S;
     if(!(M_submatrix(A, i, j, &S)))
         fprintf(stderr, "Não existe submatriz!\n");
@@ -143,7 +146,7 @@ double M_minor(Matrix * A, int i, int j) {
 }
 
 double M_cofactor(Matrix * A, int i, int j) {
-	return ((i+j)%2) ? -1.0*M_minor(A,i,j) : M_minor(A,i,j);
+	return (((i+j)%2) ? -1.0 : 1.0)*M_minor(A,i,j);
 }
 
 double M_det(Matrix * A) {
@@ -159,7 +162,45 @@ double M_det(Matrix * A) {
             acc += *M_at(A,i,j) * M_cofactor(A,i,j);
         return acc;
     }
-    return mNAN;
+    return NAN;
+}
+
+int M_comatrix(Matrix * A, Matrix ** CoA) {
+    /* Retorna 0 se erro, ou 1 se correto 
+     * A é matriz (argumentos), CoA é a resposta
+     */
+    int i, j;
+    *CoA = M_create(A->R, A->C);
+    for(i = 0; i < A->R; i++) 
+        for(j = 0; j < A->C; j++) 
+            *M_at(*CoA,i,j) = M_cofactor(A,i,j);
+    return 1;
+}
+
+int M_adjoint(Matrix * A, Matrix ** adjA) {
+    /* Retorna 0 se erro, ou 1 se correto 
+     * A é matriz (argumentos), adjA é a resposta
+     */
+    int i, j;
+    Matrix * aux;
+    M_comatrix(A, &aux);
+    M_transpose(aux, adjA);
+    M_free(aux);
+    return 1;
+}
+
+int M_inv(Matrix * A, Matrix ** iA) {
+    /* Retorna 0 se erro, ou 1 se correto 
+     * A é matriz, row e column posição (argumentos), S é a resposta
+     */
+    Matrix * aux;
+    double det = M_det(A);
+    if(A->R == A->C && !isinf(1.0/det)) {
+        M_adjoint(A, &aux);
+        M_timesK(aux, 1.0/det, iA);
+        M_free(aux);
+        return 1;
+    } else return 0;
 }
 
 #endif

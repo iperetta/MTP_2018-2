@@ -30,6 +30,12 @@ int main() {
     M_fill(B, aux+2, aux + N);
     printf("B:\n"); M_print(B); 
     printf("Determinante de B = %lf\n", M_det(B));
+    if(!(M_adjoint(B, &C))) fprintf(stderr, "Não tem erro\n");
+    else {  printf("adjB:\n"); M_print(C); M_free(C); }
+    CHECK(M_inv(A,&C),"Não tem inversa\n",
+        printf("A^{-1}:\n"); M_print(C); M_free(C));
+    CHECK(M_inv(B, &C), "Não tem inversa\n", 
+        printf("B^{-1}:\n"); M_print(C); M_free(C));
     M_free(A);    M_free(B);    
     return 0;
 }
